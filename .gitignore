@@ -1,0 +1,34 @@
+# Virtual Environment
+myenv/
+myenv/*
+env/
+env/*
+venv/
+venv/*
+
+# Outros ambientes virtuais comuns (opcional)
+venv/
+env/
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Arquivos de dados gerados
+#*.json
+#ibovespa_*.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
