@@ -1,0 +1,10 @@
+services:
+  terraform:
+    image: hashicorp/terraform:1.8
+    container_name: terraform-s3
+    working_dir: /workspace
+    volumes:
+      - ./deploy/:/workspace # Terraform files
+      - ./aws:/root/.aws:ro # AWS Creditials
+    environment:
+      - AWS_PROFILE=default

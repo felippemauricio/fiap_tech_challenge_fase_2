@@ -1,3 +1,4 @@
+TERRAFORM = docker compose run --rm
 APP=B3_Scrapper.py
 
 VENV_DIR=.venv
@@ -10,6 +11,15 @@ FLAKE8=$(VENV_DIR)/bin/flake8
 UVICORN=$(VENV_DIR)/bin/uvicorn
 
 .PHONY: venv install run test lint format
+
+init:
+	$(TERRAFORM) terraform init
+
+plan:
+	$(TERRAFORM) terraform plan
+
+apply:
+	$(TERRAFORM) terraform apply -auto-approve
 
 venv:
 	python -m venv $(VENV_DIR)
