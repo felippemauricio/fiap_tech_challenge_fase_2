@@ -13,7 +13,3 @@ variable "environment" {
   default = "prod"
 }
 
-variable "s3_bucket_name" {
-  type    = string
-  default = "b3-trading-data-scraper"
-}
