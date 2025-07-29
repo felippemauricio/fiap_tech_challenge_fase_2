@@ -13,7 +13,7 @@ resource "aws_scheduler_schedule" "scheduler" {
 
     input = jsonencode({
       source         = "eventbridge-scheduler",
-      scheduled_time = "<aws.scheduler.scheduled-time>"
+      scheduled_time = "${"$"}{aws.scheduler.scheduled-time}"
     })
   }
 }
