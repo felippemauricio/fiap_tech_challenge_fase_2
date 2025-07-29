@@ -14,3 +14,8 @@ variable "iam_role_arn" {
 variable "path_code_zip" {
   type = string
 }
+
+variable "environment_variables" {
+  type    = map(string)
+  default = {}
+}
