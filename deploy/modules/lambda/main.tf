@@ -13,7 +13,7 @@ resource "aws_lambda_function" "lambda" {
   package_type  = "Image"
   architectures = ["arm64"]
   image_uri     = "${aws_ecr_repository.lambda_repo.repository_url}:latest"
-  timeout       = 60
+  timeout       = 120
 
   environment {
     variables = var.environment_variables

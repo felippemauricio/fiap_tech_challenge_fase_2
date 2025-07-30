@@ -1,13 +1,10 @@
-import json
-import logging
-import os
-
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+from services.b3_scraper import run_scraper
+from utils.response import json_response
 
 def lambda_handler(event, context):
-    logger.info(f"Received felippe event: {json.dumps(event)}")
+    result, error = run_scraper()
 
-    # Log all environment variables
-    env_vars = dict(os.environ)
-    logger.info(f"Environment variables: {json.dumps(env_vars)}")
+    if error:
+        return json_response({"error": error}, status_code=500)
+
+    return json_response(result)
