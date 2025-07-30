@@ -1,16 +1,12 @@
 TERRAFORM = docker compose run --rm
-APP=B3_Scrapper.py
+REGION = us-east-1
+AWS_CREDENTIALS = $(CURDIR)/aws/credentials
 
-VENV_DIR=.venv
+.PHONY: init plan apply build run deploy login-aws test
 
-PIP=$(VENV_DIR)/bin/pip
-PYTHON=$(VENV_DIR)/bin/python
-
-BLACK=$(VENV_DIR)/bin/black
-FLAKE8=$(VENV_DIR)/bin/flake8
-UVICORN=$(VENV_DIR)/bin/uvicorn
-
-.PHONY: venv install run test lint format
+####################################################################
+### Terraform commands
+####################################################################
 
 init:
 	$(TERRAFORM) terraform init
@@ -21,18 +17,38 @@ plan:
 apply:
 	$(TERRAFORM) terraform apply -auto-approve
 
-venv:
-	python -m venv $(VENV_DIR)
+####################################################################
+### Lambda Docker build & deploy
+####################################################################
 
-install: venv
-	$(PIP) install --upgrade pip
-	$(PIP) install -r requirements.txt
+# make build APP_NAME=b3-trading-scraper
+# make build APP_NAME=trigger-glue-etl
+build:
+	docker build --platform linux/arm64 --build-arg APP_DIR=$(APP_NAME) -t fiap/$(APP_NAME):latest .
 
-run: venv
-	$(PYTHON) $(APP) --reload
+# make login AWS_ACCOUNT_ID=467807053936
+login:
+	AWS_SHARED_CREDENTIALS_FILE=$(AWS_CREDENTIALS) \
+	aws ecr get-login-password --region $(REGION) | \
+	docker login --username AWS --password-stdin \
+	$(AWS_ACCOUNT_ID).dkr.ecr.$(REGION).amazonaws.com
 
-lint: venv
-	$(FLAKE8) .
+# make push APP_NAME=b3-trading-scraper AWS_ACCOUNT_ID=467807053936
+# make push APP_NAME=trigger-glue-etl AWS_ACCOUNT_ID=467807053936
+push:
+	AWS_SHARED_CREDENTIALS_FILE=$(AWS_CREDENTIALS) \
+	docker tag fiap/$(APP_NAME):latest \
+	$(AWS_ACCOUNT_ID).dkr.ecr.$(REGION).amazonaws.com/fiap/$(APP_NAME)-prod:latest && \
+	AWS_SHARED_CREDENTIALS_FILE=$(AWS_CREDENTIALS) \
+	docker push \
+	$(AWS_ACCOUNT_ID).dkr.ecr.$(REGION).amazonaws.com/fiap/$(APP_NAME)-prod:latest
 
-format: venv
-	$(BLACK) --line-length 79 .
+# make run APP_NAME=b3-trading-scraper
+# make run APP_NAME=trigger-glue-etl
+run:
+	docker run -p 9000:8080 fiap/$(APP_NAME):latest
+
+test:
+	curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" \
+		-H "Content-Type: application/json" \
+		-d '{"test": "ok"}' | jq
