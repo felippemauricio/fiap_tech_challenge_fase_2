@@ -41,7 +41,17 @@ push:
 	$(AWS_ACCOUNT_ID).dkr.ecr.$(REGION).amazonaws.com/fiap/$(APP_NAME)-prod:latest && \
 	AWS_SHARED_CREDENTIALS_FILE=$(AWS_CREDENTIALS) \
 	docker push \
-	$(AWS_ACCOUNT_ID).dkr.ecr.$(REGION).amazonaws.com/fiap/$(APP_NAME)-prod:latest
+	$(AWS_ACCOUNT_ID).dkr.ecr.$(REGION).amazonaws.com/fiap/$(APP_NAME)-prod:latest && \
+	$(MAKE) deploy
+
+# make deploy APP_NAME=b3-trading-scraper AWS_ACCOUNT_ID=467807053936
+# make deploy APP_NAME=trigger-glue-etl AWS_ACCOUNT_ID=467807053936
+deploy:
+	AWS_SHARED_CREDENTIALS_FILE=$(AWS_CREDENTIALS) \
+	aws lambda update-function-code \
+	--function-name "$(APP_NAME)-lambda-prod" \
+	--image-uri $(AWS_ACCOUNT_ID).dkr.ecr.$(REGION).amazonaws.com/fiap/$(APP_NAME)-prod:latest \
+	--region $(REGION)
 
 # make run APP_NAME=b3-trading-scraper
 # make run APP_NAME=trigger-glue-etl
