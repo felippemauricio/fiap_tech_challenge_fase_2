@@ -6,7 +6,6 @@ import base64
 import requests
 from datetime import datetime
 from io import BytesIO
-import logging
 
 import pandas as pd
 import pyarrow as pa
@@ -14,9 +13,6 @@ import pyarrow.parquet as pq
 import boto3
 
 from envs import config
-
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
 
 def clean_type_field(type_str):
     if isinstance(type_str, str):
@@ -83,15 +79,20 @@ def jsons_to_dataframe(json_pages):
         records.extend(items)
     return pd.DataFrame(records)
 
-
 def upload_parquet_to_s3(df, partition_date):
+    dt = datetime.strptime(partition_date, "%Y-%m-%d")
+    year = dt.strftime("%Y")
+    month = dt.strftime("%m")
+    day = dt.strftime("%d")
+
+    key = f"{config.S3_BUCKET_FOLDER}/year={year}/month={month}/day={day}/ibovespa.parquet"
+
     table = pa.Table.from_pandas(df)
     buf = BytesIO()
     pq.write_table(table, buf)
     buf.seek(0)
 
     s3 = boto3.client("s3")
-    key = f"{config.S3_BUCKET_FOLDER}/date={partition_date}/ibovespa.parquet"
     s3.put_object(Bucket=config.S3_BUCKET, Key=key, Body=buf.getvalue())
 
 

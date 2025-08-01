@@ -12,3 +12,7 @@ variable "bucket_notification_lambda_name" {
   default = ""
 }
 
+variable "s3_folders" {
+  type    = list(string)
+  default = []
+}

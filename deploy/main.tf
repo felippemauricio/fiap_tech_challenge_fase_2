@@ -19,6 +19,7 @@ module "s3_b3_trading_scraper" {
   bucket_name                     = "b3-trading-scraper-data-${var.environment}"
   bucket_notification_lambda_name = module.lambda_trigger_glue_etl.lambda_function.function_name
   environment                     = var.environment
+  s3_folders                      = ["raw_data", "refined"]
 }
 
 module "lambda_b3_trading_scraper" {
