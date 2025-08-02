@@ -56,7 +56,7 @@ def access_b3_api(page_number=1):
 def extract_file_date(json_data):
     try:
         date_str = json_data['header']['date']
-        dt = datetime.strptime(date_str, "%d/%m/%y")
+        dt = datetime.strptime(date_str, "%m/%d/%y")
         return dt.strftime("%Y-%m-%d")
     except Exception:
         return datetime.now().strftime("%Y-%m-%d")
