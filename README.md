@@ -91,3 +91,29 @@ make init
 make plan
 make apply
 ```
+
+### 🚀 Deploying Lambda Functions with Docker
+
+The AWS environment has been provisioned, and now it’s time to deploy the Lambda functions.
+Since these Lambdas are packaged as Docker containers, the deployment involves these key steps:
+
+1. **Login** to AWS Elastic Container Registry (ECR):
+
+```bash
+make login AWS_ACCOUNT_ID=<AWS_ACCOUNT_ID>
+```
+
+2. **Build** the Docker image locally for each Lambda app:
+
+```bash
+make build APP_NAME=b3-trading-scraper
+make build APP_NAME=trigger-glue-etl
+```
+
+3. **Push** the Docker image to AWS ECR:
+
+```bash
+make push APP_NAME=b3-trading-scraper AWS_ACCOUNT_ID=<AWS_ACCOUNT_ID>
+make push APP_NAME=trigger-glue-etl AWS_ACCOUNT_ID=<AWS_ACCOUNT_ID>
+```
+
