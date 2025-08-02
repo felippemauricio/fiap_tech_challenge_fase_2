@@ -1,7 +1,7 @@
 resource "aws_scheduler_schedule" "scheduler" {
   name                         = var.scheduler_name
   schedule_expression          = var.scheduler_expression
-  schedule_expression_timezone = "America/Sao_Paulo"
+  schedule_expression_timezone = var.schedule_expression_timezone
 
   flexible_time_window {
     mode = "OFF"

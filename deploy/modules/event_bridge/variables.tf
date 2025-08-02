@@ -17,3 +17,8 @@ variable "scheduler_name" {
 variable "scheduler_expression" {
   type = string
 }
+
+variable "schedule_expression_timezone" {
+  type    = string
+  default = "America/Sao_Paulo"
+}
