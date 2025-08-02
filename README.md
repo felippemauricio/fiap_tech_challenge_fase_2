@@ -48,10 +48,6 @@ fiap_tech_challenge_fase_2/
 ### 🐳 Install Docker
 
 ```
-# Windows
-open https://www.docker.com/products/docker-desktop/ # Download and install Docker Desktop from the official website:
-docker --version # 4. Confirm installation:
-
 # MacOS
 brew install docker --cask
 ```
@@ -60,33 +56,37 @@ brew install docker --cask
 
 To allow Terraform to create resources in your AWS account, you must configure your AWS credentials locally. Follow the steps below if you're using the AWS Academy Learner Lab:
 
-📘 Steps:
-1- Log in to the AWS Academy Learner Lab.
-2- Go to the "AWS Details" section of your active lab.
-3- Click the "Show" button next to "AWS CLI". You will see output similar to this:
-```
-[default]
-aws_access_key_id = ABCDEFGHIJK123456789
-aws_secret_access_key = aVeryLongSecretKeyHere123456789...
-aws_session_token = AnotherLongSessionToken...
-```
-4- Copy all that content.
-5- Inside this project folder, go to the aws/ directory and create a file named credentials (if it doesn't already exist).
-6- Paste the copied content into aws/credentials.
+### 📘 Steps to Configure AWS Credentials
 
-### ☁️ Running Terraform to Deploy Infrastructure
+1. Log in to the **AWS Academy Learner Lab**.  
+2. Go to the **"AWS Details"** section of your active lab.  
+3. Click the **"Show"** button next to **"AWS CLI"**. You will see output similar to this:
+
+    ```ini
+    [default]
+    aws_access_key_id = ABCDEFGHIJK123456789
+    aws_secret_access_key = aVeryLongSecretKeyHere123456789...
+    aws_session_token = AnotherLongSessionToken...
+    ```
+
+4. Copy all that content.  
+5. Inside this project folder, navigate to the `aws/` directory and create a file named `credentials` (if it doesn't already exist).  
+6. Paste the copied content into `aws/credentials`. 
+
+### ☁️ Provisioning AWS Infrastructure with Terraform
 
 After configuring your AWS credentials, you’re ready to provision the AWS resources required for this project.
 
 This file gives Terraform temporary access to your AWS account so it can deploy infrastructure — such as:
 
-- S3 buckets
-- Lambda functions
-- Glue jobs
-- Athena tables
+- S3 buckets  
+- Lambda functions  
+- Glue jobs  
+- Athena tables  
 
 To initialize, plan, and apply the Terraform configuration, run the following commands:
-```
+
+```bash
 make init
 make plan
 make apply
