@@ -193,3 +193,77 @@ SELECT
 FROM "b3-trading-catalog-database-prod"."trading-daily-agg-table-prod"
 ORDER BY year, month, day;
 ```
+
+### 📅 Monthly Aggregated Table
+
+Query all records for a specific month:
+
+```sql
+SELECT *
+FROM "b3-trading-catalog-database-prod"."trading-monthly-agg-table-prod"
+WHERE 
+  year = '2025' AND 
+  month = '08'
+ORDER BY code;
+```
+
+### 🔗 Daily + Monthly Join
+
+Join daily data with monthly aggregated stats to compare quantities and participation:
+
+```sql
+SELECT 
+  daily.code,
+  daily.asset_name,
+  daily.date_partition,
+  
+  format('%,d', daily.theorical_qty) AS theorical_qty,
+  format('%,.2f', monthly.avg_theorical_qty) AS monthly_avg_theorical_qty,
+  format('%,d', monthly.min_theorical_qty) AS monthly_min_theorical_qty,
+  format('%,d', monthly.max_theorical_qty) AS monthly_max_theorical_qty,
+  
+  format('%,d', daily.part) AS part,
+  format('%,.2f', monthly.avg_part) AS monthly_avg_part,
+  format('%,d', monthly.min_part) AS monthly_min_part,
+  format('%,d', monthly.max_part) AS monthly_max_part
+
+FROM "b3-trading-catalog-database-prod"."trading-daily-table-prod" AS daily
+LEFT JOIN "b3-trading-catalog-database-prod"."trading-monthly-agg-table-prod" AS monthly
+  ON daily.code = monthly.code
+  AND daily.year = monthly.year
+  AND daily.month = monthly.month
+WHERE 
+  daily.year = '2025' AND 
+  daily.month = '08' AND 
+  daily.day = '01'
+ORDER BY daily.code;
+```
+
+### 📈 Status Comparison (Daily vs. Monthly)
+
+```sql
+SELECT 
+  daily.code,
+  daily.asset_name,
+  daily.date_partition,
+  
+  format('%,d', daily.part) AS part,
+  format('%,d', monthly.min_part) AS monthly_min_part,
+  format('%,d', monthly.max_part) AS monthly_max_part,
+  
+  CASE 
+    WHEN daily.part > monthly.min_part THEN 'SUBIU'
+    WHEN daily.part < monthly.min_part THEN 'DESCEU'
+    ELSE 'IGUAL'
+  END AS status_part
+FROM "b3-trading-catalog-database-prod"."trading-daily-table-prod" AS daily
+LEFT JOIN "b3-trading-catalog-database-prod"."trading-monthly-agg-table-prod" AS monthly
+  ON daily.code = monthly.code
+  AND daily.year = monthly.year
+  AND daily.month = monthly.month
+WHERE 
+  daily.year = '2025' AND 
+  daily.month = '08' AND 
+  daily.day = '01'
+ORDER BY daily.code;
+```
