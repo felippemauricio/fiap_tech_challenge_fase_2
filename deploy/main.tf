@@ -100,6 +100,77 @@ module "glue_catalog_database_b3_trading_scraper" {
   source                = "./modules/glue_catalog_database"
   catalog_database_name = "b3-trading-catalog-database-${var.environment}"
   environment           = var.environment
+  tables = [
+    {
+      name       = "trading-daily-table-${var.environment}"
+      table_type = "EXTERNAL_TABLE"
+      location   = "s3://${module.s3_b3_trading_scraper.bucket.bucket}/refined/daily/"
+      parameters = {
+        classification       = "parquet"
+        useGlueParquetWriter = "true"
+      }
+      columns = [
+        { name = "type", type = "string" },
+        { name = "part", type = "bigint" },
+        { name = "raw_type", type = "string" },
+        { name = "raw_theorical_qty", type = "string" },
+        { name = "theorical_qty", type = "bigint" },
+        { name = "raw_part", type = "string" },
+        { name = "date_partition", type = "string" },
+        { name = "extract_timestamp", type = "string" },
+        { name = "asset_name", type = "string" }
+      ]
+      partition_keys = [
+        { name = "year", type = "string" },
+        { name = "month", type = "string" },
+        { name = "day", type = "string" },
+        { name = "code", type = "string" }
+      ]
+    },
+    {
+      name       = "trading-daily-agg-table-${var.environment}",
+      table_type = "EXTERNAL_TABLE"
+      location   = "s3://${module.s3_b3_trading_scraper.bucket.bucket}/refined/daily_agg/"
+      parameters = {
+        classification       = "parquet"
+        useGlueParquetWriter = "true"
+      }
+      columns = [
+        { name = "total_theorical_qty", type = "bigint" },
+        { name = "total_part", type = "bigint" },
+      ]
+      partition_keys = [
+        { name = "year", type = "string" },
+        { name = "month", type = "string" },
+        { name = "day", type = "string" },
+      ]
+    },
+    {
+      name       = "trading-monthly-agg-table-${var.environment}",
+      table_type = "EXTERNAL_TABLE"
+      location   = "s3://${module.s3_b3_trading_scraper.bucket.bucket}/refined/monthly_agg/"
+      parameters = {
+        classification       = "parquet"
+        useGlueParquetWriter = "true"
+      }
+      columns = [
+        { name = "avg_theorical_qty", type = "double" },
+        { name = "avg_part", type = "double" },
+        { name = "min_part", type = "bigint" },
+        { name = "max_part", type = "bigint" },
+        { name = "min_theorical_qty", type = "bigint" },
+        { name = "max_theorical_qty", type = "bigint" },
+        { name = "min_date_partition", type = "date" },
+        { name = "max_date_partition", type = "date" },
+        { name = "diff_date_partition", type = "int" },
+      ]
+      partition_keys = [
+        { name = "year", type = "string" },
+        { name = "month", type = "string" },
+        { name = "code", type = "string" }
+      ]
+    },
+  ]
 }
 
 ######################################

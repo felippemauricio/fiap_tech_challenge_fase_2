@@ -5,7 +5,6 @@ services:
     working_dir: /workspace
     volumes:
       - ./deploy/:/workspace # Terraform files
-      - ./package/:/workspace/package # Lambda files
       - ./aws:/root/.aws:ro # AWS Creditials
     environment:
       - AWS_PROFILE=default

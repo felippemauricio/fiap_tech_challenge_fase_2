@@ -17,6 +17,9 @@ plan:
 apply:
 	$(TERRAFORM) terraform apply -auto-approve
 
+import:
+	$(TERRAFORM) terraform import $(resource) $(id)
+
 ####################################################################
 ### Lambda Docker build & deploy
 ####################################################################
