@@ -23,8 +23,8 @@ module "s3_b3_trading_scraper" {
   s3_folders = [
     "raw_data",
     "refined/daily",
-    "refined/monthly",
-    "refined/yearly",
+    "refined/daily_agg",
+    "refined/monthly_agg",
   ]
 }
 
@@ -64,7 +64,10 @@ module "lambda_trigger_glue_etl" {
   environment         = var.environment
 
   environment_variables = {
-    ENV = var.environment
+    ENV              = var.environment
+    GLUE_JOB_NAME    = "test"
+    S3_BUCKET        = module.s3_b3_trading_scraper.bucket.bucket
+    S3_BUCKET_FOLDER = "refined"
   }
 }
 
@@ -89,6 +92,15 @@ resource "aws_s3_bucket_notification" "invoke_lambda_trigger_glue_etl_on_object_
 ### GLUE JOB
 ######################################
 
+######################################
+### GLUE DATABASE
+######################################
+
+module "glue_catalog_database_b3_trading_scraper" {
+  source                = "./modules/glue_catalog_database"
+  catalog_database_name = "b3-trading-catalog-database-${var.environment}"
+  environment           = var.environment
+}
 
 ######################################
 ### Athena
