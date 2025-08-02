@@ -16,3 +16,8 @@ variable "s3_folders" {
   type    = list(string)
   default = []
 }
+
+variable "enable_versioning" {
+  type    = bool
+  default = false
+}

@@ -19,7 +19,13 @@ module "s3_b3_trading_scraper" {
   bucket_name                     = "b3-trading-scraper-data-${var.environment}"
   bucket_notification_lambda_name = module.lambda_trigger_glue_etl.lambda_function.function_name
   environment                     = var.environment
-  s3_folders                      = ["raw_data", "refined", "athena"]
+  enable_versioning               = true
+  s3_folders = [
+    "raw_data",
+    "refined/daily",
+    "refined/monthly",
+    "refined/yearly",
+  ]
 }
 
 module "lambda_b3_trading_scraper" {
@@ -83,3 +89,13 @@ resource "aws_s3_bucket_notification" "invoke_lambda_trigger_glue_etl_on_object_
 ### GLUE JOB
 ######################################
 
+
+######################################
+### Athena
+######################################
+
+module "s3_b3_trading_athena" {
+  source      = "./modules/s3"
+  bucket_name = "b3-trading-athena-${var.environment}"
+  environment = var.environment
+}
