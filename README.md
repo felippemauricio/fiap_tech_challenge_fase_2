@@ -117,3 +117,79 @@ make push APP_NAME=b3-trading-scraper AWS_ACCOUNT_ID=<AWS_ACCOUNT_ID>
 make push APP_NAME=trigger-glue-etl AWS_ACCOUNT_ID=<AWS_ACCOUNT_ID>
 ```
 
+## 🧱 Architecture
+
+## 📊 Athena SQL Examples
+
+Below are some example SQL queries you can run in **Amazon Athena** to explore and analyze B3 trading data.
+
+### 🔎 Daily Data
+
+Query the full dataset for a specific day:
+
+```sql
+SELECT 
+  code,
+  asset_name,
+  date_partition,
+  type,
+  format('%,d', theorical_qty) AS theorical_qty,
+  format('%,d', part) AS part
+FROM "b3-trading-catalog-database-prod"."trading-daily-table-prod"
+WHERE 
+  year = '2025' AND 
+  month = '08' AND 
+  day = '01'
+ORDER BY code;
+```
+
+Query for a specific asset on a given day:
+
+```sql
+SELECT 
+  code,
+  asset_name,
+  date_partition,
+  type,
+  format('%,d', theorical_qty) AS theorical_qty,
+  format('%,d', part) AS part
+FROM "b3-trading-catalog-database-prod"."trading-daily-table-prod"
+WHERE 
+  year = '2025' AND 
+  month = '08' AND 
+  day = '01' AND
+  code = 'ABEV3'
+ORDER BY code;
+```
+
+Group totals by asset type on a given day:
+
+```sql
+SELECT 
+  type,
+  date_partition,
+  format('%,d', SUM(theorical_qty)) AS theorical_qty,
+  format('%,d', SUM(part)) AS part
+FROM "b3-trading-catalog-database-prod"."trading-daily-table-prod"
+WHERE 
+  year = '2025' AND 
+  month = '08' AND 
+  day = '01'
+GROUP BY 
+  type, 
+  date_partition
+ORDER BY type;
+```
+
+### 📆 Daily Aggregated Table
+
+Query daily aggregated totals:
+
+```sql
+SELECT
+  CONCAT(year, '-', month, '-', day) AS full_date,
+  format('%,d', total_theorical_qty) AS total_theorical_qty,
+  format('%,d', total_part) AS total_part
+FROM "b3-trading-catalog-database-prod"."trading-daily-agg-table-prod"
+ORDER BY year, month, day;
+```
