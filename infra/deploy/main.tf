@@ -42,15 +42,15 @@ module "lambda_b3_trading_scraper" {
   }
 }
 
-# module "event_bridge_b3_trading_scraper" {
-#   source                       = "./modules/event_bridge"
-#   scheduler_name               = "b3-trading-scraper-scheduler-4-times-${var.environment}"
-#   iam_role_arn                 = data.aws_iam_role.labrole_iam_role.arn
-#   scheduler_expression         = "cron(0 0,6,12,18 * * ? *)" # 4-times
-#   schedule_expression_timezone = "America/Sao_Paulo"
-#   lambda_arn                   = module.lambda_b3_trading_scraper.lambda_function.arn
-#   environment                  = var.environment
-# }
+module "event_bridge_b3_trading_scraper" {
+  source                       = "./modules/event_bridge"
+  scheduler_name               = "b3-trading-scraper-scheduler-4-times-${var.environment}"
+  iam_role_arn                 = data.aws_iam_role.labrole_iam_role.arn
+  scheduler_expression         = "cron(0 0,6,12,18 * * ? *)" # 4-times
+  schedule_expression_timezone = "America/Sao_Paulo"
+  lambda_arn                   = module.lambda_b3_trading_scraper.lambda_function.arn
+  environment                  = var.environment
+}
 
 ######################################
 ### Trigger GLUE ETL
