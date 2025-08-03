@@ -2,7 +2,7 @@
 
 This job is designed to process, validate, and aggregate daily IBOVESPA index data starting from raw Parquet files, producing tables with different aggregation levels for downstream analysis.
 
-## Job Workflow
+## 🔁 Job Workflow
 
 ### 1. Raw Data Ingestion
 
@@ -52,6 +52,10 @@ This job is designed to process, validate, and aggregate daily IBOVESPA index da
   - The difference between these dates to determine how many days were considered in the period.  
 - Stores the aggregated results in the table `trading-monthly-agg-table-prod`, partitioned by:  
   `year`, `month`, and `code`.
+
+## 🎥 AWS Glue Job Execution Demo
+
+![Glue Job](images/glue-job.gif)
 
 ---
 

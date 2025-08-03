@@ -157,6 +157,12 @@ WHERE
 ORDER BY daily.code;
 ```
 
+## 🎥 AWS Athena Query Execution Demo
+
+![Athena Query](images/athena-query.gif)
+
+---
+
 ## 📘 Notes
 
 - Replace `"b3-trading-catalog-database-<ENVIRONMENT>"` with your environment-specific catalog/database name used in Step 5 (e.g., `-prod`, `-dev`, etc.).
