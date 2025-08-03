@@ -42,15 +42,15 @@ module "lambda_b3_trading_scraper" {
   }
 }
 
-module "event_bridge_b3_trading_scraper" {
-  source                       = "./modules/event_bridge"
-  scheduler_name               = "b3-trading-scraper-scheduler-4-times-${var.environment}"
-  iam_role_arn                 = data.aws_iam_role.labrole_iam_role.arn
-  scheduler_expression         = "cron(0 0,6,12,18 * * ? *)" # 4-times
-  schedule_expression_timezone = "America/Sao_Paulo"
-  lambda_arn                   = module.lambda_b3_trading_scraper.lambda_function.arn
-  environment                  = var.environment
-}
+# module "event_bridge_b3_trading_scraper" {
+#   source                       = "./modules/event_bridge"
+#   scheduler_name               = "b3-trading-scraper-scheduler-4-times-${var.environment}"
+#   iam_role_arn                 = data.aws_iam_role.labrole_iam_role.arn
+#   scheduler_expression         = "cron(0 0,6,12,18 * * ? *)" # 4-times
+#   schedule_expression_timezone = "America/Sao_Paulo"
+#   lambda_arn                   = module.lambda_b3_trading_scraper.lambda_function.arn
+#   environment                  = var.environment
+# }
 
 ######################################
 ### Trigger GLUE ETL
@@ -65,10 +65,9 @@ module "lambda_trigger_glue_etl" {
 
   environment_variables = {
     ENV              = var.environment
-    GLUE_JOB_NAME    = "test"
+    GLUE_JOB_NAME    = "b3-trading-visual-job-${var.environment}"
     S3_BUCKET        = module.s3_b3_trading_scraper.bucket.bucket
     S3_BUCKET_FOLDER = "refined"
-    # GLUE_JOB_NAME    = "b3-trading-job-${var.environment}"
   }
 }
 
@@ -93,7 +92,14 @@ resource "aws_s3_bucket_notification" "invoke_lambda_trigger_glue_etl_on_object_
 ### GLUE JOB
 ######################################
 
-// Created manually at aws console
+module "glue_script_b3_trading" {
+  source                        = "./modules/glue_job"
+  environment                   = var.environment
+  glue_job_name                 = "b3-trading-visual-job-${var.environment}"
+  iam_role_arn                  = data.aws_iam_role.labrole_iam_role.arn
+  s3_bucket_name_read_and_write = "b3-trading-scraper-data-${var.environment}"
+  glue_catalog_database         = "b3-trading-catalog-database-${var.environment}"
+}
 
 ######################################
 ### GLUE DATABASE

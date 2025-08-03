@@ -3,13 +3,10 @@ variable "aws_region" {
   default = "us-east-1" # N. Virginia
 }
 
-variable "aws_account_id" {
-  type    = string
-  default = "467807053936"
+variable "account_id" {
+  type = string
 }
 
 variable "environment" {
-  type    = string
-  default = "prod"
+  type = string
 }
-

@@ -20,8 +20,12 @@ resource "aws_s3_object" "s3_bucket_folders" {
   for_each = toset(var.s3_folders)
 
   bucket  = var.bucket_name
-  key     = "${each.value}/_keep"
-  content = ""
+  key     = "${each.value}/"
+  content = null
+
+  depends_on = [
+    aws_s3_bucket.s3_bucket,
+  ]
 }
 
 resource "aws_lambda_permission" "allow_s3_to_invoke_lambda" {

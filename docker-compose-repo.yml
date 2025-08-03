@@ -1,0 +1,10 @@
+services:
+  terraform:
+    image: hashicorp/terraform:1.8
+    container_name: terraform-infra-repo
+    working_dir: /workspace
+    volumes:
+      - ./infra/repo/:/workspace # Terraform files
+      - ./aws:/root/.aws:ro # AWS Credentials
+    environment:
+      - AWS_PROFILE=default
