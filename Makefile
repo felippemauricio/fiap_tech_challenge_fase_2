@@ -29,7 +29,7 @@ repo-apply:
 
 # make repo-destroy AWS_ACCOUNT_ID=467807053936 ENVIRONMENT=prod-v2
 repo-destroy:
-	$(TERRAFORM) terraform destroy -auto-approve $(TF_VARS)
+	$(REPO_TERRAFORM) terraform destroy -auto-approve $(TF_VARS)
 
 ####################################################################
 ### Terraform commands
