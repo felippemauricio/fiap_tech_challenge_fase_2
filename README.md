@@ -107,7 +107,7 @@ Terraform generates the Glue job JSON configuration and uploads it to an S3 buck
 
 ## 🧱 Architecture
 
-
+![Arquitetura AWS](docs/images/diagram.png)
 
 ## 🧠 What Does the Glue Job Do?
 
