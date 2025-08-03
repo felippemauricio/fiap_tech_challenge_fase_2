@@ -13,257 +13,112 @@ The official source for the raw trading data is: [https://sistemaswebb3-listados
 
 ```
 fiap_tech_challenge_fase_2/
-├── aws/                            # Local AWS credentials configuration
-│   └── credentials                 # Credentials file copied from ~/.aws/credentials
-├── deploy/                         # Infrastructure as Code (IaC) using Terraform
-│   ├── athena/                     # Athena tables and query configurations
-│   ├── event_bridge/               # Scheduled rules and EventBridge configurations
-│   ├── glue_catalog_database/      # Glue Data Catalog and database definitions
-│   ├── lambda/                     # AWS Lambda functions (e.g., ETL trigger)
-│   ├── s3/                         # S3 bucket configuration
-│   ├── main.tf                     # Main Terraform configuration file
-│   └── variables.tf                # Terraform variables definition
-├── docs/                           # Project documentation
-├── src/                            # Application source code
-│   ├── b3-trading-scraper/         # Scraper to extract data from B3 (stock exchange)
-│   │   ├── handler.py              # Main function for scraping and ingestion
-│   │   └── requirements.txt        # Dependencies for the scraper
-│   └── trigger-glue-etl/           # Lambda function to trigger the Glue ETL job
-│       ├── handler.py              # Main function to start the ETL
-│       └── requirements.txt        # Dependencies for the Lambda function
-├── docker-compose.yml              # Docker service orchestration (for local setup)
-├── Dockerfile                      # Docker image definition (e.g., to run the scraper)
-└── Makefile                        # Utility commands for build, deployment, and setup
+├── aws/                                # Local AWS credentials configuration
+│   └── credentials                     # Credentials file (copied from AWS Academy)
+│
+├── infra/                              # Infrastructure as Code (IaC) using Terraform
+│   ├── deploy/
+│   │   ├── modules/
+│   │   │   ├── athena/                 # Athena table and query configurations
+│   │   │   ├── event_bridge/           # EventBridge rules for scheduled triggers
+│   │   │   ├── glue_catalog_database/  # Glue Data Catalog and database definitions
+│   │   │   ├── lambda/                 # Lambda function deployment (e.g., ETL trigger)
+│   │   │   └── s3/                     # S3 bucket definitions
+│   │   ├── main.tf                     # Terraform entry point for the deploy stack
+│   │   └── variables.tf                # Variable declarations for deploy modules
+│   │
+│   └── repo/
+│       ├── modules/
+│       │   └── ecr/                    # Elastic Container Registry configuration
+│       ├── main.tf                     # Terraform entry point for the repo stack
+│       └── variables.tf                # Variable declarations for repo modules
+│
+├── docs/                               # Project documentation
+│
+├── src/                                # Application source code
+│   ├── b3-trading-scraper/             # Lambda to scrape and ingest B3 stock exchange data
+│   │   ├── handler.py                  # Entry point for scraping logic - AWS Lambda
+│   │   └── requirements.txt            # Python dependencies for the scraper
+│   │
+│   └── trigger-glue-etl/               # Lambda to trigger the AWS Glue ETL job
+│       ├── handler.py                  # Entry point for triggering Glue job - AWS Lambda
+│       └── requirements.txt            # Python dependencies for the Lambda
+│
+├── docker-compose-deploy.yml           # Docker Compose for infrastructure deployment
+├── docker-compose-repo.yml             # Docker Compose for repository services
+│
+├── Dockerfile                          # Base Dockerfile used to build Lambda images
+│
+└── Makefile                            # Utility commands (build, deploy, test, etc.)
+
 ```
 
 ## 🛠️ Tech Stack
 
-- **Python 3.11+** 
-- **Docker**  
-- **Terraform**  
-- **Makefile (for automation)**
+- **AWS CLI** – Used for interacting with AWS services from the command line  
+- **Python 3.12+** – Main programming language for Lambdas  
+- **Docker** – Containerization and image builds for Lambda functions  
+- **Terraform** – Infrastructure as Code (IaC) to provision AWS resources  
+- **Makefile** – Automation of common tasks (build, deploy, etc.)
 
 ## ⚙️ Installation
 
-### 🐳 Install Docker
+This project automates the creation of AWS infrastructure for B3 data ingestion and processing, using containerized Lambdas, Glue, Athena, and more.
 
-```
-# MacOS
-brew install docker --cask
-```
+### 1. 🐳 Install Required CLI Tools (Docker & AWS CLI)
 
-### 🔐 AWS Credentials Setup (via AWS Academy Lab)
+Install the necessary tools for development and deployment: Docker and AWS CLI.
 
-To allow Terraform to create resources in your AWS account, you must configure your AWS credentials locally. Follow the steps below if you're using the AWS Academy Learner Lab:
+> See detailed instructions in [INSTALL.md](./docs/INSTALL.md#-1-install-required-cli-tools-docker--aws-cli)
 
-### 📘 Steps to Configure AWS Credentials
+### 2. 🔐 Setting Up AWS Credentials (via AWS Academy Lab)
 
-1. Log in to the **AWS Academy Learner Lab**.  
-2. Go to the **"AWS Details"** section of your active lab.  
-3. Click the **"Show"** button next to **"AWS CLI"**. You will see output similar to this:
+Configure your AWS credentials locally so Terraform and AWS CLI can operate on your AWS account.
 
-    ```ini
-    [default]
-    aws_access_key_id = ABCDEFGHIJK123456789
-    aws_secret_access_key = aVeryLongSecretKeyHere123456789...
-    aws_session_token = AnotherLongSessionToken...
-    ```
+> Full instructions available at [INSTALL.md](./docs/INSTALL.md#-2-setting-up-aws-credentials-via-aws-academy-lab)
 
-4. Copy all that content.  
-5. Inside this project folder, navigate to the `aws/` directory and create a file named `credentials` (if it doesn't already exist).  
-6. Paste the copied content into `aws/credentials`. 
+### 3. ☁️ Provisioning AWS Infrastructure - ECR Repositories
 
-### ☁️ Provisioning AWS Infrastructure with Terraform
+Initial provisioning of infrastructure for the Elastic Container Registries (ECR), which will store the Lambda Docker images.
 
-After configuring your AWS credentials, you’re ready to provision the AWS resources required for this project.
+> Detailed steps at [INSTALL.md](./docs/INSTALL.md#3-%EF%B8%8F-provisioning-aws-infrastructure---ecr-repositories)
 
-This file gives Terraform temporary access to your AWS account so it can deploy infrastructure — such as:
+### 4. 🚀 Build and Push Lambda Docker Images to AWS ECR
 
-- S3 buckets  
-- Lambda functions  
-- Glue jobs  
-- Athena tables  
+How to build Docker images locally for the Lambdas and push them to the ECR repository.
 
-To initialize, plan, and apply the Terraform configuration, run the following commands:
+> Complete guide at [INSTALL.md](./docs/INSTALL.md#4--build-and-push-lambda-docker-images-to-aws-ecr)
 
-```bash
-make init
-make plan
-make apply
-```
+### 5. ☁️ Provisioning AWS Infrastructure - Core Resources / Full Resources
 
-### 🚀 Deploying Lambda Functions with Docker
+After images are in ECR, provision the rest of the AWS infrastructure needed for the application (Lambdas, Glue, Athena, S3, etc).
 
-The AWS environment has been provisioned, and now it’s time to deploy the Lambda functions.
-Since these Lambdas are packaged as Docker containers, the deployment involves these key steps:
+> More information at [INSTALL.md](./docs/INSTALL.md#5-%EF%B8%8F-provisioning-aws-infrastructure---core-resources--full-resources)
 
-1. **Login** to AWS Elastic Container Registry (ECR):
+### 6. 🧩 Manual Creation of AWS Glue Job
 
-```bash
-make login AWS_ACCOUNT_ID=<AWS_ACCOUNT_ID>
-```
+Terraform generates the Glue job JSON configuration and uploads it to an S3 bucket as part of the infrastructure setup. However, due to current limitations in both Terraform and AWS APIs:
 
-2. **Build** the Docker image locally for each Lambda app:
+- The AWS Glue service does **not** support creating or updating jobs with complex visual workflows (i.e., the Glue Studio visual editor with drag-and-drop nodes) programmatically.
+- Terraform can only create Glue jobs in **code mode** (script-based), but many Glue jobs require visual workflows with multiple steps and transformations, which cannot be fully described by the Terraform provider.
+- The AWS Console Glue Studio visual editor is the only way to **create, edit, and manage** these graphical ETL jobs.
 
-```bash
-make build APP_NAME=b3-trading-scraper
-make build APP_NAME=trigger-glue-etl
-```
-
-3. **Push** the Docker image to AWS ECR:
-
-```bash
-make push APP_NAME=b3-trading-scraper AWS_ACCOUNT_ID=<AWS_ACCOUNT_ID>
-make push APP_NAME=trigger-glue-etl AWS_ACCOUNT_ID=<AWS_ACCOUNT_ID>
-```
+> Steps for manual creation available at [INSTALL.md](./docs/INSTALL.md#6--manual-creation-of-aws-glue-job)
 
 ## 🧱 Architecture
 
+## 🧠 What Does the Glue Job Do?
+
+The AWS Glue Job executes a data transformation pipeline for B3 trading data.
+
+> 📄 See full breakdown in [GLUE_JOB_STEPS.md](./docs/GLUE_JOB_STEPS.md)
+
 ## 📊 Athena SQL Examples
 
-Below are some example SQL queries you can run in **Amazon Athena** to explore and analyze B3 trading data.
+Explore and analyze B3 trading data using Amazon Athena.
 
-### 🔎 Daily Data
+- Daily raw data queries  
+- Daily and monthly aggregations  
+- Joins and comparative analyses  
 
-Query the full dataset for a specific day:
-
-```sql
-SELECT 
-  code,
-  asset_name,
-  date_partition,
-  type,
-  format('%,d', theorical_qty) AS theorical_qty,
-  format('%,d', part) AS part
-FROM "b3-trading-catalog-database-prod"."trading-daily-table-prod"
-WHERE 
-  year = '2025' AND 
-  month = '08' AND 
-  day = '01'
-ORDER BY code;
-```
-
-Query for a specific asset on a given day:
-
-```sql
-SELECT 
-  code,
-  asset_name,
-  date_partition,
-  type,
-  format('%,d', theorical_qty) AS theorical_qty,
-  format('%,d', part) AS part
-FROM "b3-trading-catalog-database-prod"."trading-daily-table-prod"
-WHERE 
-  year = '2025' AND 
-  month = '08' AND 
-  day = '01' AND
-  code = 'ABEV3'
-ORDER BY code;
-```
-
-Group totals by asset type on a given day:
-
-```sql
-SELECT 
-  type,
-  date_partition,
-  format('%,d', SUM(theorical_qty)) AS theorical_qty,
-  format('%,d', SUM(part)) AS part
-FROM "b3-trading-catalog-database-prod"."trading-daily-table-prod"
-WHERE 
-  year = '2025' AND 
-  month = '08' AND 
-  day = '01'
-GROUP BY 
-  type, 
-  date_partition
-ORDER BY type;
-```
-
-### 📆 Daily Aggregated Table
-
-Query daily aggregated totals:
-
-```sql
-SELECT
-  CONCAT(year, '-', month, '-', day) AS full_date,
-  format('%,d', total_theorical_qty) AS total_theorical_qty,
-  format('%,d', total_part) AS total_part
-FROM "b3-trading-catalog-database-prod"."trading-daily-agg-table-prod"
-ORDER BY year, month, day;
-```
-
-### 📅 Monthly Aggregated Table
-
-Query all records for a specific month:
-
-```sql
-SELECT *
-FROM "b3-trading-catalog-database-prod"."trading-monthly-agg-table-prod"
-WHERE 
-  year = '2025' AND 
-  month = '08'
-ORDER BY code;
-```
-
-### 🔗 Daily + Monthly Join
-
-Join daily data with monthly aggregated stats to compare quantities and participation:
-
-```sql
-SELECT 
-  daily.code,
-  daily.asset_name,
-  daily.date_partition,
-  
-  format('%,d', daily.theorical_qty) AS theorical_qty,
-  format('%,.2f', monthly.avg_theorical_qty) AS monthly_avg_theorical_qty,
-  format('%,d', monthly.min_theorical_qty) AS monthly_min_theorical_qty,
-  format('%,d', monthly.max_theorical_qty) AS monthly_max_theorical_qty,
-  
-  format('%,d', daily.part) AS part,
-  format('%,.2f', monthly.avg_part) AS monthly_avg_part,
-  format('%,d', monthly.min_part) AS monthly_min_part,
-  format('%,d', monthly.max_part) AS monthly_max_part
-
-FROM "b3-trading-catalog-database-prod"."trading-daily-table-prod" AS daily
-LEFT JOIN "b3-trading-catalog-database-prod"."trading-monthly-agg-table-prod" AS monthly
-  ON daily.code = monthly.code
-  AND daily.year = monthly.year
-  AND daily.month = monthly.month
-WHERE 
-  daily.year = '2025' AND 
-  daily.month = '08' AND 
-  daily.day = '01'
-ORDER BY daily.code;
-```
-
-### 📈 Status Comparison (Daily vs. Monthly)
-
-```sql
-SELECT 
-  daily.code,
-  daily.asset_name,
-  daily.date_partition,
-  
-  format('%,d', daily.part) AS part,
-  format('%,d', monthly.min_part) AS monthly_min_part,
-  format('%,d', monthly.max_part) AS monthly_max_part,
-  
-  CASE 
-    WHEN daily.part > monthly.min_part THEN 'SUBIU'
-    WHEN daily.part < monthly.min_part THEN 'DESCEU'
-    ELSE 'IGUAL'
-  END AS status_part
-FROM "b3-trading-catalog-database-prod"."trading-daily-table-prod" AS daily
-LEFT JOIN "b3-trading-catalog-database-prod"."trading-monthly-agg-table-prod" AS monthly
-  ON daily.code = monthly.code
-  AND daily.year = monthly.year
-  AND daily.month = monthly.month
-WHERE 
-  daily.year = '2025' AND 
-  daily.month = '08' AND 
-  daily.day = '01'
-ORDER BY daily.code;
-```
+> Full query examples available at [docs/ATHENA_QUERIES.md](./docs/ATHENA_QUERIES.md)
