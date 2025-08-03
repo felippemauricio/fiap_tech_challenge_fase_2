@@ -1,65 +1,58 @@
-# 🧠 Glue Job: Step-by-Step Breakdown
+# IBOVESPA Index Data Processing Job Description
 
-This document explains the internal logic of the **AWS Glue Visual Job** for B3 trading data processing. The job is defined visually using a sequence of nodes in AWS Glue Studio.
+This job is designed to process, validate, and aggregate daily IBOVESPA index data starting from raw Parquet files, producing tables with different aggregation levels for downstream analysis.
 
-## 🔄 Overview
+## Job Workflow
 
-The job performs the following:
+### 1. Raw Data Ingestion
 
-- Reads raw Parquet files from S3 (partitioned by `year/month/day`)
-- Cleans and standardizes fields
-- Calculates new columns (e.g., parsed dates)
-- Writes the transformed data back to another S3 path, partitioned and ready for Athena
+- Input data is stored in Parquet files partitioned by year, month, and day with the path format:  
+  `year=/month=/day=/ibovespa.parquet`.
+- These files are updated daily with the latest available data.
 
-## 🧩 Step-by-Step Nodes
+### 2. Field Normalization
 
-### 1. 🟢 **S3 Source**
+- Rename the column `cod` to `code` for standardization.  
+- Rename the column `asset` to `asset_name`.
 
-- **Type:** S3 (Parquet)
-- **Path:** `s3://<bucket>/raw_data/year=<yyyy>/month=<MM>/day=<dd>/`
-- **Schema:** Auto-detected or manually mapped
-- **Columns loaded:**
-  - `cod`, `asset`, `type`, `part`, `theoricalQty`, `date_partition`, `extract_timestamp`
+### 3. Date Field Extraction
 
-### 2. 🛠️ **Rename Fields**
+- The `date_partition` field (a date string) is split into an array with year, month, and day components.  
+- These components are then transformed into three separate columns:  
+  - `year`  
+  - `month`  
+  - `day`
 
-- Renames some columns to more descriptive or standardized names:
-  - `cod` → `code`
-  - `theoricalQty` → `theorical_qty`
-  - `extract_timestamp` → `ingestion_ts`
+### 4. Job Splitting into Three Parallel Processes
 
-### 3. 🧮 **Apply Mapping / Transformations**
+#### a) Full Daily Data Write
 
-- Ensures consistent types for Athena (e.g., string, bigint)
-- Parses `date_partition` into year, month, day columns
-  - `year = year(date_partition)`
-  - `month = month(date_partition)`
-  - `day = day(date_partition)`
-- Casts `part` and `theorical_qty` to integers if needed
+- Writes the processed data directly to a target S3 bucket.  
+- Creates or updates the table `trading-daily-table-prod` partitioned by:  
+  `year`, `month`, `day`, and `code`.  
+- This table holds the complete granular dataset for each day.
 
-### 4. ➕ **Add Fields**
+#### b) Daily Aggregation
 
-- Adds derived columns:
-  - `ingestion_date = current_date()`
-  - `source = 'b3-trading'`
+- Aggregates data daily, grouping by:  
+  `year`, `month`, and `day` (excluding the asset code).  
+- Computes:  
+  - The sum of the `part` column (which should total 100%) to ensure data integrity.  
+  - The sum of `theorical_qty`, used to verify data consistency against the official B3 website.  
+- Results are saved in the aggregated daily table `trading-daily-agg-table-prod`, partitioned by:  
+  `year`, `month`, and `day`.
 
-### 5. 🟦 **S3 Target**
+#### c) Monthly Aggregation
 
-- **Type:** S3 (Parquet with Hive-compatible partitioning)
-- **Output Path:**  
-  `s3://<bucket>/curated/trading-daily/`
-- **Partitions:** `year`, `month`, `day`
+- Performs monthly aggregations, grouping by:  
+  `year`, `month`, and `code` (excluding day).  
+- Calculates:  
+  - The average `part` value over the month, representing the consolidated participation of each asset.  
+  - The maximum and minimum `date_partition` values within the month.  
+  - The difference between these dates to determine how many days were considered in the period.  
+- Stores the aggregated results in the table `trading-monthly-agg-table-prod`, partitioned by:  
+  `year`, `month`, and `code`.
 
-## 🎯 Output
+---
 
-The resulting dataset is:
-
-- Clean
-- Partitioned
-- Ready to query via Athena
-
-Athena table name example:
-
-```sql
-b3-trading-catalog-database-prod.trading-daily-table-prod
-```
+This workflow ensures well-organized, validated tables at multiple granularities, facilitating daily and monthly IBOVESPA data analysis.

@@ -107,6 +107,8 @@ Terraform generates the Glue job JSON configuration and uploads it to an S3 buck
 
 ## 🧱 Architecture
 
+
+
 ## 🧠 What Does the Glue Job Do?
 
 The AWS Glue Job executes a data transformation pipeline for B3 trading data.
