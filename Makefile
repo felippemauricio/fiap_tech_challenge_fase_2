@@ -61,7 +61,7 @@ import:
 # make build APP_NAME=b3-trading-scraper
 # make build APP_NAME=trigger-glue-etl
 build:
-	docker build --platform linux/arm64 --build-arg APP_DIR=$(APP_NAME) -t fiap/$(APP_NAME):latest .
+	docker buildx build --platform linux/arm64 --build-arg APP_DIR=$(APP_NAME) -t fiap/$(APP_NAME):latest .
 
 # make login AWS_ACCOUNT_ID=467807053936
 login:
